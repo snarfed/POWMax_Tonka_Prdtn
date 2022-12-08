@@ -1,6 +1,9 @@
 matplotlib
 numpy
 pandas
+scipy
+sklearn
+statsmodels
 yfinance
 yahoo-earnings-calendar
 requests
