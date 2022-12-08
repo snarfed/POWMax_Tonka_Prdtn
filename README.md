@@ -1,3 +1,4 @@
 # POWMax_Tonka_Prdtn
-This notebook contains code modules releaset for alpha use by Gina. 
+This repo contains notebooks for the Tonka release version of POWARRMax for use by Gina. 
 1. OptionGun
+2. TradeManager

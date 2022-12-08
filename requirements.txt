@@ -1,0 +1,13 @@
+matplotlib
+numpy
+pandas
+statsmodels
+iexfinance
+sklearn
+scipy
+yfinance
+yahoo-earnings-calendar
+requests
+
+
+
