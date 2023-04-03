@@ -1,0 +1,10 @@
+Profile,Active,POWmin,POWmax,ARRmin,ARRmax,PctOTMmin,PctOTMmax,PctFeemin,PctFeemax,daysoutmin,daysoutmax,BidAskSpreadmax,Root_MaxPctPort,Root_MaxPctOptions,Spike_Pctmin,Spike_Daysmax
+Put_STO_Short,TRUE,69,85,19,95,4,15,2,12,-1,50,78,2,15,,
+Put_STO_Mid,TRUE,50,85,15,85,2,18,3,15,50,150,82,2,15,,
+Put_STO_Long,TRUE,25,85,10,75,-5,20,5,25,150,500,90,2,15,,
+Call_STO_Short,TRUE,69,85,19,95,4,15,2,12,-1,50,78,2,15,,
+Call_STO_Mid,TRUE,50,85,15,85,2,18,5,15,50,150,82,2,15,,
+Call_STO_Long,TRUE,25,85,10,75,-5,20,4,25,150,500,90,2,15,,
+Call_STO_Spike,FALSE,69,85,19,95,4,20,2,12,1,55,75,2,15,4,3
+Put_STO_Spike,FALSE,69,85,19,95,4,20,2,12,1,55,75,2,15,4,3
+Call_Buy_Write,FALSE,69,85,19,95,4,15,2,12,2,55,75,2,15,,
