@@ -168,7 +168,7 @@ def BuildOptionMetrics(all_options, FEE_SPREAD, HIDE_TICKERS, DATE_FORMAT):
     clean_options = clean_options.drop(columns = drop_columns).copy()
     clean_options.rename(columns = {'impliedVolatility': 'open_IVol'}, inplace = True)
     int_columns = ['daysout', 'ARR', 'POW', 'open_IVol']
-    clean_options[int_columns] = clean_options[int_columns].astype(int)
+#    clean_options[int_columns] = clean_options[int_columns].astype(int)
 
     #float_columns = ['daysout', 'ARR', 'POW', 'impliedVolatility']
     #clean_options[float_columns] = all_options[float_columns].astype(float).copy()
