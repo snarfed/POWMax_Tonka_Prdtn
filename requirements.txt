@@ -7,6 +7,6 @@ statsmodels
 yfinance
 yahoo-earnings-calendar
 requests
-OptionGunLib01
+
 
 
