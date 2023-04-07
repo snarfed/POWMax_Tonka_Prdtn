@@ -131,7 +131,7 @@ def GetOptions(root_data, TICKERS, EXPIRY_DELAY, TICKER_DELAY, MAX_DAYSOUT, MIN_
 def BuildOptionMetrics(all_options, FEE_SPREAD, HIDE_TICKERS, DATE_FORMAT):
     
     all_options['Quote_Time'] = pd.to_datetime(all_options['Quote_Time'], format = DATE_FORMAT)
-    all_options['Expiry']     = pd.to_datetime(all_options['Expiry'], format = DATE_FORMAT)
+    all_options['Expiry']     = pd.to_datetime(all_options['Expiry'], format = '%Y-%m-%d')
     all_options['fee']        = FEE_SPREAD * (all_options['ask'] - all_options['bid']) + all_options['bid']
     all_options['daysout']    = (all_options['Expiry'] - all_options['Quote_Time']) / np.timedelta64(1,'D')
     all_options['strike']     = pd.to_numeric(all_options['strike'], errors = 'coerce')
