@@ -10,9 +10,7 @@
 #
 
 # *****************
-#
 # Import Libraries
-#
 # *****************
 
 import csv
@@ -38,35 +36,26 @@ from   dateutil.relativedelta  import relativedelta
 from   yahoo_earnings_calendar import YahooEarningsCalendar
 
 
-# Library Functions
+#import ImportLibsPython01
+#import ImportLibsPowerMax01
+
 
 def GetPrices(TICKERS, root_data, DAR_key):
     for ticker in TICKERS:
-    
+        #print('getting price for ', ticker)    
         price_rqst = 'https://api.darqube.com/data-api/market_data/quote/' + ticker + '?token=' + DAR_key
+
+        # TODO - Use try condition to get ech stock price. If DARqube returns error, then trap out and continue instead of crashing.
+        #print('getting price for ', ticker)
         response = requests.get(price_rqst)
         price_dict = response.json()
+        #print('     price_dict = ', price_dict)
         root_data.loc[ticker, 'root price'] = price_dict['price']
 
     root_data.sort_index(inplace = True) #Save root_data with updated current market prices.
 
     return root_data
 
-def GetERDates(root_data, TICKERS, YEC_DELAY):  #Yahoo Earnings calendar does not work. Find new data source.
-                                                # Also, move this fct to CrystalBall, since it is used in predictions.
-    for ticker in TICKERS:
-        yec = YahooEarningsCalendar(YEC_DELAY)
-
-        try:
-            next_er_date = (datetime.fromtimestamp(yec.get_next_earnings_date(ticker)).strftime('%Y-%m-%d %H:%M'))
-        except: 
-            print(ticker, ' ER Dates - got retrieval error')
-        else:
-            root_data.loc[ticker, 'ER Date'] = next_er_date
-            print(ticker, root_data.loc[ticker, 'ER Date'])
-    root_data.sort_index(inplace = True)
-
-    return root_data
 
 def GetOptions(root_data, TICKERS, EXPIRY_DELAY, TICKER_DELAY, MAX_DAYSOUT, MIN_DAYSOUT):
     bad_tickers = []
@@ -131,7 +120,7 @@ def GetOptions(root_data, TICKERS, EXPIRY_DELAY, TICKER_DELAY, MAX_DAYSOUT, MIN_
 def BuildOptionMetrics(all_options, FEE_SPREAD, HIDE_TICKERS, DATE_FORMAT):
     
     all_options['Quote_Time'] = pd.to_datetime(all_options['Quote_Time'], format = DATE_FORMAT)
-    all_options['Expiry']     = pd.to_datetime(all_options['Expiry'], format = '%Y-%m-%d')
+    all_options['Expiry']     = pd.to_datetime(all_options['Expiry'], format = DATE_FORMAT)
     all_options['fee']        = FEE_SPREAD * (all_options['ask'] - all_options['bid']) + all_options['bid']
     all_options['daysout']    = (all_options['Expiry'] - all_options['Quote_Time']) / np.timedelta64(1,'D')
     all_options['strike']     = pd.to_numeric(all_options['strike'], errors = 'coerce')
@@ -156,22 +145,25 @@ def BuildOptionMetrics(all_options, FEE_SPREAD, HIDE_TICKERS, DATE_FORMAT):
     all_options['BidAskSpread'] = 100.0 * (all_options['ask'] - all_options['bid']) / all_options['ask']
     # Note this clac changed on 03/26/23. Previously divided by 'bid'. Now divided by 'ask' to set range 0-100
     all_options['impliedVolatility'] = 100.0 * all_options['impliedVolatility']
+    all_options.to_csv('all_options23-04-03-14.csv')
 
     #Clean up and simplify all_options prior to calling Bullets.
     clean_options = all_options.copy()
 
     drop_columns = ['contractSymbol', 'lastTradeDate', 'lastPrice', 'bid', 'ask', 'change', \
                     'percentChange', 'callPITM', 'volume', 'openInterest', 'Quote_Time', 'Expstring', 'contractSize', 'currency']
+    
 
     #Removed ER daysout and ER-Expiry from drop_columns. Put them back after fixing the format problem.
     
     clean_options = clean_options.drop(columns = drop_columns).copy()
     clean_options.rename(columns = {'impliedVolatility': 'open_IVol'}, inplace = True)
-    int_columns = ['daysout', 'ARR', 'POW', 'open_IVol']
-#    clean_options[int_columns] = clean_options[int_columns].astype(int)
 
-    #float_columns = ['daysout', 'ARR', 'POW', 'impliedVolatility']
-    #clean_options[float_columns] = all_options[float_columns].astype(float).copy()
+    print('clean_options.csv')
+    clean_options.replace([np.inf, -np.inf], np.nan, inplace=True)
+    clean_options.dropna(how = 'all', axis = 'index', inplace = True)
+#    int_columns = ['daysout', 'ARR', 'POW', 'open_IVol']
+#    clean_options[int_columns] = clean_options[int_columns].astype(int, errors = 'ignore').copy() #Causes conversion error. Try removing inf and Nan
 
     clean_options = clean_options[~clean_options['root'].isin(HIDE_TICKERS)].copy()
  
@@ -180,12 +172,12 @@ def BuildOptionMetrics(all_options, FEE_SPREAD, HIDE_TICKERS, DATE_FORMAT):
 
 # *********
 #
-# Bullets_PSTO generates Put_STO csvs for short, mid, and long term options.
+# Bullets_STO generates Put_STO and Call_STO csvs for short, mid, and long term options.
 #    Uses screen values (min/max) from option_profiles. 
 #
 # *********
 
-def Bullets_PSTO(all_options, profiles):
+def Bullets_STO(all_options, profiles):  
 
     # Define all profiles and dfs.
     Put_STO_Short = pd.DataFrame()
@@ -313,6 +305,8 @@ def LittleGuns(all_options, option_screens): #Obsolete now.
         write_file = screen + '.csv'
         screen_dict[screen].to_csv(write_file, index = False, float_format = '%.2f')
         print('Wrote ', screen, ' at ', datetime.now())
+
+#def Bullets_CCSTO(stuff) This bullet uses tholding and open trades to show only calls that can be covered.
 
 def Bullets_BTC(all_options, trade_log_open):
     Call_BTC = pd.DataFrame()
