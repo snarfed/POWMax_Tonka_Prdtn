@@ -33,8 +33,8 @@ from   datetime import timedelta
 #from   datetime import fromtimestamp
 
 from   dateutil.relativedelta  import relativedelta
-from   yahoo_earnings_calendar import YahooEarningsCalendar
-
+#from   yahoo_earnings_calendar import YahooEarningsCalendar
+#replace this wih a better earnings calendar
 
 #import ImportLibsPython01
 #import ImportLibsPowerMax01
