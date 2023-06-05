@@ -41,12 +41,12 @@ from   dateutil.relativedelta  import relativedelta
 
 
 def GetPrices(TICKERS, root_data, DAR_key):
+    print('DAR_key = ', DAR_key, '   TICKERS[0] = ', TICKERS[0])
     for ticker in TICKERS:
-        #print('getting price for ', ticker)    
         price_rqst = 'https://api.darqube.com/data-api/market_data/quote/' + ticker + '?token=' + DAR_key
 
         # TODO - Use try condition to get ech stock price. If DARqube returns error, then trap out and continue instead of crashing.
-        #print('getting price for ', ticker)
+        print('getting price for ', ticker)
         response = requests.get(price_rqst)
         price_dict = response.json()
         #print('     price_dict = ', price_dict)
