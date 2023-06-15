@@ -306,7 +306,7 @@ def LittleGuns(all_options, option_screens): #Obsolete now.
         screen_dict[screen].to_csv(write_file, index = False, float_format = '%.2f')
         print('Wrote ', screen, ' at ', datetime.now())
 
-def Bullets_Spikes(all_options, spike_days, spike_min_pct):
+#def Bullets_Spikes(all_options, spike_days, spike_min_pct):
     # **********
     #
     # Bullets_Spikes
