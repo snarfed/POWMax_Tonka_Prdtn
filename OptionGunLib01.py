@@ -306,7 +306,26 @@ def LittleGuns(all_options, option_screens): #Obsolete now.
         screen_dict[screen].to_csv(write_file, index = False, float_format = '%.2f')
         print('Wrote ', screen, ' at ', datetime.now())
 
-#def Bullets_CCSTO(stuff) This bullet uses tholding and open trades to show only calls that can be covered.
+def Bullets_Spikes(all_options, spike_days, spike_min_pct):
+    # **********
+    #
+    # Bullets_Spikes
+    # Started 06/14/23
+    # 1. From all_options create list of tickers.
+    # 2. Get close prices for X days history for each ticker in all_options.
+    # 3. Calc spike sizes for dip and rip. Dip = last price - highest price. Rip = last price - lowest price.
+    # 4. Collect all optins that meet profiles for dip and rip > target levels.
+    # 4. Make recommendation - Wait, place BTC for day / GTC, at price X, Wait for price drop to close, 
+    #        Wait for Expiry, Wait for Assignment.
+    #
+    # Make close offer IF:
+    #   - matching_PBTC_fee < MIN_BID_Pct or > ARRBE (with factor)  # for profitable trades
+    #           or concentration too high, or ITM is low enough, or cost_basis is higher than strike, or don't want the root.               
+    #**********
+
+    
+
+#def Bullets_CCSTO(stuff) This bullet uses holding and open trades to show only calls that can be covered.
 
 def Bullets_BTC(all_options, trade_log_open):
     Call_BTC = pd.DataFrame()
@@ -315,9 +334,6 @@ def Bullets_BTC(all_options, trade_log_open):
     Call_BTC.iloc[0,0] = 'Not done yet. Empty for now.'
     Put_BTC.iloc[0,0]  = 'Not done yet. Empty for now.'
     
-
-        
-
         
     # **********
     #
