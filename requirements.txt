@@ -1,9 +1,15 @@
+csv
+copy
+datetime
+dateutil
+json
 matplotlib
 numpy
 pandas
 scipy
 scikit-learn
 statsmodels
+time
 yfinance
 yahoo-earnings-calendar
 requests
