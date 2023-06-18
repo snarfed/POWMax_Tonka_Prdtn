@@ -1,5 +1,5 @@
 datetime
-dateutil
+python-dateutil
 json
 matplotlib
 numpy
