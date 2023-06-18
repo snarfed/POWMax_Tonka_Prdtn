@@ -6,7 +6,6 @@ pandas
 scipy
 scikit-learn
 statsmodels
-time
 yfinance
 yahoo-earnings-calendar
 requests
