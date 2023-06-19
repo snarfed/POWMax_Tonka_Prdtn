@@ -1,4 +1,4 @@
-# OptionGunLib01
+# OptionGunLib01  v0002
 # v002 - 03/19/23 - Added GetOptions, GetPrices, and GetERDates (need new data feed. YEC does not work.)
 # v001 Created 12/31/22
 # 06/19/23 - Fixed error in DATE_TIME and BuildOptionMetrics fct. where it converts Expiry string to date object.
@@ -124,6 +124,8 @@ def BuildOptionMetrics(all_options, FEE_SPREAD, HIDE_TICKERS, DATE_ONLY_FORMAT, 
     all_options['daysout']    = (all_options['Expiry'] - all_options['Quote_Time']) / np.timedelta64(1,'D')
     all_options['strike']     = pd.to_numeric(all_options['strike'], errors = 'coerce')
     all_options['root price'] = pd.to_numeric(all_options['root price'], errors = 'coerce')
+
+    # TODO Find different source for ER dates. YEC not so good.
     #all_options['ER Date']    = pd.to_datetime(all_options['ER Date'], format = DATE_FORMAT)
     #all_options['ER daysout'] = (all_options['ER Date'] - all_options['Quote_Time']) / np.timedelta64(1,'D')
     #all_options['ER-Expiry']  = all_options['ER daysout'] - all_options['daysout']
@@ -144,7 +146,7 @@ def BuildOptionMetrics(all_options, FEE_SPREAD, HIDE_TICKERS, DATE_ONLY_FORMAT, 
     all_options['BidAskSpread'] = 100.0 * (all_options['ask'] - all_options['bid']) / all_options['ask']
     # Note this calc changed on 03/26/23. Previously divided by 'bid'. Now divided by 'ask' to set range 0-100
     all_options['impliedVolatility'] = 100.0 * all_options['impliedVolatility']
-    all_options.to_csv('all_options23-04-03-14.csv')
+    #all_options.to_csv('all_options23-04-03-14.csv')
 
     #Clean up and simplify all_options prior to calling Bullets.
     clean_options = all_options.copy()
@@ -202,11 +204,11 @@ def Bullets_STO(all_options, profiles):
         if option_type == 'put':
             run_profiles = put_profiles
             profiles_dict = put_profiles_dict
-            options.to_csv('puts_all.csv')
+            #options.to_csv('puts_all.csv')
         else:
             run_profiles = call_profiles
             profiles_dict = call_profiles_dict
-            options.to_csv('calls_all.csv')
+            #options.to_csv('calls_all.csv')
             
         for profile in run_profiles: # Create option profile by profiling all_options with profile params.
             this_STO = profiles_dict[profile]                       
@@ -223,13 +225,15 @@ def Bullets_STO(all_options, profiles):
                                  (this_STO['daysout'] <  profiles.loc[profile, 'daysoutmax'])) & \
                                  (this_STO['BidAskSpread'] < profiles.loc[profile, 'BidAskSpreadmax'])].copy()
 
-            # Select best 3 options for each of these metrics - POW, ARR, PctOTM, PctFee, daysout
+            # TODO Complete this screen or delete it.
+            #Select best 3 options for each of these metrics - POW, ARR, PctOTM, PctFee, daysout
             select = 4 #Controls # options chosen to display
             col_names = this_STO.columns.tolist()
             best_options = pd.DataFrame(columns = col_names)
             this_STO['Select'] = False
             if profile == 'Put_STO_Short':
-                this_STO.to_csv('Put_STO_Short_all.csv')
+                pass
+                #this_STO.to_csv('Put_STO_Short_all.csv')
             #print(this_STO[['root', 'POW', 'Select', 'ARR']])
             for metric in ('POW', 'ARR', 'PctOTM', 'PctFee'):  #Add iVol?
                 # Create list of roots
@@ -251,61 +255,14 @@ def Bullets_STO(all_options, profiles):
             best_options = best_options.drop(columns = drop_cols).copy()
                        
                                     
-            #Sort in POWMax standard way
-                    
+            #Sort in POWMax standard way. Then save as csv.
             best_options.sort_values(['root', 'ARR'], ascending = [True, False], inplace = True)
             write_file = profile + '.csv'
             best_options.to_csv(write_file, index = False, float_format = '%.2f')
             print('Wrote ', profile, ' at ', datetime.now())
-
-
-def LittleGuns(all_options, option_screens): #Obsolete now.
-
-    # Define all option_screens and dfs.
-    Put_STO_Short = pd.DataFrame()
-    Put_STO_Mid   = pd.DataFrame()
-    Put_STO_Long  = pd.DataFrame()
-    Put_STO_Spike = pd.DataFrame()
-    Put_BTC       = pd.DataFrame()
-    Call_STO_Short = pd.DataFrame()
-    Call_STO_Mid   = pd.DataFrame()
-    Call_STO_Long  = pd.DataFrame()
-    Call_STO_Spike = pd.DataFrame()
-    Call_BTC       = pd.DataFrame()
-    
-    # Define dict lookups for option dfs
-    screen_dict = {'Put_STO_Short': Put_STO_Short, 'Put_STO_Mid': Put_STO_Mid, 'Put_STO_Long': Put_STO_Long, \
-                   'Put_STO_Spike': Put_STO_Spike, 'Put_BTC': Put_BTC, \
-                   'Call_STO_Short': Call_STO_Short, 'Call_STO_Mid': Call_STO_Mid, 'Call_STO_Long': Call_STO_Long, \
-                   'Call_STO_Spike': Call_STO_Spike, 'Call_BTC': Call_BTC \
-                  }
-    
-    # Get screen df and active screens
-    run_screens = option_screens['Profiles'][option_screens.loc[:, 'Active'] == True].values.tolist()
-    
-    for screen in run_screens: # Create option screen by screening all_options with screen params.
-        screen_dict[screen] = all_options[(((all_options['POW'] >= option_screens.loc['screen_ID', 'POWmin'])   & \
-                                            (all_options['POW'] <  option_screens.loc['screen_ID', 'POWmax']))  & \
-                                           ((all_options['ARR'] >= option_screens.loc['screen_ID', 'ARRmin'])   & \
-                                            (all_options['ARR']   <  option_screens.loc['screen_ID', 'ARRMax'])))    & \
-                                          (((all_options['PctFee'] >= option_screens.loc['screen_ID', 'PctFeemin'])  & \
-                                            (all_options['PctFee']  < option_screens.loc['screen_ID', 'PctFeemax'])) & \
-                                           ((all_options['PctOTM'] >  option_screens.loc['screen_ID', 'PctOTMmin'])  & \
-                                            (all_options['PctOTM'] <= option_screens.loc['screen_ID', 'PctOTMmax'])))].copy()
-        
-        screen_dict[screen] = screen_dict[screen][(screen_dict['daysout'] >= option_screens.loc['screen_ID', 'daysoutmin']) & \
-                                                  (screen_dict['daysout'] <  option_screens.loc['screen_ID', 'daysoutmax'])].copy()
-        
-        int_columns = ['daysout', 'ARR', 'POW', 'impliedVolatility']
-        screen_dict[screen] = screen_dict[screen][int_columns].astype(int).copy()
-        
-        #Sort your favorite way.
-        screen_dict[screen].sort_values(['option_type', 'root', 'PctFee'], ascending = [False, True, False], inplace = True)
-        write_file = screen + '.csv'
-        screen_dict[screen].to_csv(write_file, index = False, float_format = '%.2f')
-        print('Wrote ', screen, ' at ', datetime.now())
-
-#def Bullets_CCSTO(stuff) This bullet uses tholding and open trades to show only calls that can be covered.
+                    
+# TODO - Finish thee bullets. 06/19/20
+#def Bullets_CCSTO(stuff) This bullet uses holding and open trades to show only calls that can be covered.
 
 def Bullets_BTC(all_options, trade_log_open):
     Call_BTC = pd.DataFrame()
@@ -314,10 +271,6 @@ def Bullets_BTC(all_options, trade_log_open):
     Call_BTC.iloc[0,0] = 'Not done yet. Empty for now.'
     Put_BTC.iloc[0,0]  = 'Not done yet. Empty for now.'
     
-
-        
-
-        
     # **********
     #
     # Bullets_Put_BTC_01
