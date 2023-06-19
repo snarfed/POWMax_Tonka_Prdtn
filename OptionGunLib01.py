@@ -1,7 +1,7 @@
 # OptionGunLib01
 # v002 - 03/19/23 - Added GetOptions, GetPrices, and GetERDates (need new data feed. YEC does not work.)
 # v001 Created 12/31/22
-#
+# 06/19/23 - Fixed error in DATE_TIME and BuildOptionMetrics fct. where it converts Expiry string to date object.
 # 03/24/23 - Wrote Bullets_STO
 # 03/19/23 - Added fcts GetRootData, GetOptionStrings, BuildOptionMetrics
 # 01/07/23 - Added TradeLogger
@@ -116,10 +116,10 @@ def GetOptions(root_data, TICKERS, EXPIRY_DELAY, TICKER_DELAY, MAX_DAYSOUT, MIN_
 
     return all_options
 
-def BuildOptionMetrics(all_options, FEE_SPREAD, HIDE_TICKERS, DATE_FORMAT):
+def BuildOptionMetrics(all_options, FEE_SPREAD, HIDE_TICKERS, DATE_ONLY_FORMAT, DATE_TIME_FORMAT):
     
-    all_options['Quote_Time'] = pd.to_datetime(all_options['Quote_Time'], format = DATE_FORMAT)
-    all_options['Expiry']     = pd.to_datetime(all_options['Expiry'], format = DATE_FORMAT)
+    all_options['Quote_Time'] = pd.to_datetime(all_options['Quote_Time'], format = DATE_TIME_FORMAT)
+    all_options['Expiry']     = pd.to_datetime(all_options['Expiry'], format = DATE_ONLY_FORMAT)
     all_options['fee']        = FEE_SPREAD * (all_options['ask'] - all_options['bid']) + all_options['bid']
     all_options['daysout']    = (all_options['Expiry'] - all_options['Quote_Time']) / np.timedelta64(1,'D')
     all_options['strike']     = pd.to_numeric(all_options['strike'], errors = 'coerce')
@@ -142,7 +142,7 @@ def BuildOptionMetrics(all_options, FEE_SPREAD, HIDE_TICKERS, DATE_FORMAT):
 
     all_options['PctFee'] = 100.0 * all_options['fee'] / all_options['root price']
     all_options['BidAskSpread'] = 100.0 * (all_options['ask'] - all_options['bid']) / all_options['ask']
-    # Note this clac changed on 03/26/23. Previously divided by 'bid'. Now divided by 'ask' to set range 0-100
+    # Note this calc changed on 03/26/23. Previously divided by 'bid'. Now divided by 'ask' to set range 0-100
     all_options['impliedVolatility'] = 100.0 * all_options['impliedVolatility']
     all_options.to_csv('all_options23-04-03-14.csv')
 
