@@ -230,6 +230,7 @@ def Bullets_STO(all_options, profiles):
             select = 4 #Controls # options chosen to display
             col_names = this_STO.columns.tolist()
             best_options = pd.DataFrame(columns = col_names)
+            print('Next stmt creates Select col.')
             this_STO['Select'] = False
             if profile == 'Put_STO_Short':
                 pass
