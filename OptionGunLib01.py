@@ -41,11 +41,10 @@ from   dateutil.relativedelta  import relativedelta
 
 def GetPrices(TICKERS, root_data, DAR_key):
     for ticker in TICKERS:
-        #print('getting price for ', ticker)    
+        print('getting price for ', ticker)    
         price_rqst = 'https://api.darqube.com/data-api/market_data/quote/' + ticker + '?token=' + DAR_key
 
-        # TODO - Use try condition to get ech stock price. If DARqube returns error, then trap out and continue instead of crashing.
-        #print('getting price for ', ticker)
+        # TODO - Use try condition to get ech stock price. If DARqube returns error, then trap out and continue instead of crashing
         response = requests.get(price_rqst)
         price_dict = response.json()
         #print('     price_dict = ', price_dict)
@@ -225,41 +224,10 @@ def Bullets_STO(all_options, profiles):
                                  (this_STO['daysout'] <  profiles.loc[profile, 'daysoutmax'])) & \
                                  (this_STO['BidAskSpread'] < profiles.loc[profile, 'BidAskSpreadmax'])].copy()
 
-            # TODO Complete this screen or delete it.
-            #Select best 3 options for each of these metrics - POW, ARR, PctOTM, PctFee, daysout
-            select = 4 #Controls # options chosen to display
-            col_names = this_STO.columns.tolist()
-            best_options = pd.DataFrame(columns = col_names)
-            print('Next stmt creates Select col.')
-            this_STO['Select'] = False
-            if profile == 'Put_STO_Short':
-                pass
-                #this_STO.to_csv('Put_STO_Short_all.csv')
-            #print(this_STO[['root', 'POW', 'Select', 'ARR']])
-            for metric in ('POW', 'ARR', 'PctOTM', 'PctFee'):  #Add iVol?
-                # Create list of roots
-                roots = this_STO['root'].values.tolist()
-                roots = set(roots) #Create unique list of roots
-                for ticker in roots:
-                    ticker_options = this_STO[this_STO['root'] == ticker].copy()
-                    ticker_options.reset_index(drop = False, inplace = True)
-                    if ticker_options.shape[0] <= select:
-                        ticker_options['Select'] = True
-                    else:
-                        for metric in ('POW', 'ARR', 'PctOTM', 'PctFee'):  #Add open_iVol
-                            ticker_options.sort_values(metric, axis = 0, ascending = False, inplace = True, ignore_index = True)
-                            ticker_options.loc[0:select, 'Select'] = True
-                    ticker_options = ticker_options[ticker_options['Select'] == True].copy()
-                    best_options = best_options.merge(ticker_options, how = 'outer', copy = True)
-
-            drop_cols = ['BidAskSpread', 'Select']
-            best_options = best_options.drop(columns = drop_cols).copy()
-                       
-                                    
             #Sort in POWMax standard way. Then save as csv.
-            best_options.sort_values(['root', 'ARR'], ascending = [True, False], inplace = True)
+            this_STO.sort_values(['root', 'ARR'], ascending = [True, False], inplace = True)
             write_file = profile + '.csv'
-            best_options.to_csv(write_file, index = False, float_format = '%.2f')
+            this_STO.to_csv(write_file, index = False, float_format = '%.2f')
             print('Wrote ', profile, ' at ', datetime.now())
                     
 # TODO - Finish thee bullets. 06/19/20
