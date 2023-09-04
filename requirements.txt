@@ -7,5 +7,6 @@ scipy
 scikit-learn
 statsmodels
 yfinance
+yahooquery
 yahoo-earnings-calendar
 requests

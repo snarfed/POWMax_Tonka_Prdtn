@@ -1,4 +1,6 @@
-# OptionGunLib01  v0002
+# OptionGunLib03  v003
+# v003 - 09/04/23 - Added yahooquery to get prices to replace DARqube.
+#               - Tested ivol to get real-time options data. Nor working yet.
 # v002 - 03/19/23 - Added GetOptions, GetPrices, and GetERDates (need new data feed. YEC does not work.)
 # v001 Created 12/31/22
 # 06/19/23 - Fixed error in DATE_TIME and BuildOptionMetrics fct. where it converts Expiry string to date object.
@@ -23,7 +25,8 @@ import scipy
 from   scipy import stats
 from   scipy.stats import norm
 import time
-import yfinance as yf
+import yfinance   as yf
+import yahooquery as yq
 
 import datetime
 from   datetime import datetime
@@ -38,24 +41,22 @@ from   dateutil.relativedelta  import relativedelta
 #import ImportLibsPython01
 #import ImportLibsPowerMax01
 
+def GetPricesfromyquery(TICKERS, root_data): # 09/03/23 - yahooquery is faster, easier than yfinance.
+    print('in OptionGunLib03, TICKERS = ')
+    all_symbols = " ".join(TICKERS)
+    yquery_Info = yq.Ticker(all_symbols)
+    yquery_Dict = yquery_Info.price
 
-def GetPrices(TICKERS, root_data, DAR_key):
+    prices = []
     for ticker in TICKERS:
-        print('getting price for ', ticker)    
-        price_rqst = 'https://api.darqube.com/data-api/market_data/quote/' + ticker + '?token=' + DAR_key
-
-        # TODO - Use try condition to get ech stock price. If DARqube returns error, then trap out and continue instead of crashing
-        response = requests.get(price_rqst)
-        price_dict = response.json()
-        #print('     price_dict = ', price_dict)
-        root_data.loc[ticker, 'root price'] = price_dict['price']
-
-    root_data.sort_index(inplace = True) #Save root_data with updated current market prices.
+        prices.append(yquery_Dict[ticker]['regularMarketPrice'])
+                      
+    df_data = {'Ticker': TICKERS, 'root price': prices}
+    root_data = pd.DataFrame(df_data)   #This replaces the existing root_data. Does not update it.
 
     return root_data
 
-
-def GetOptions(root_data, TICKERS, EXPIRY_DELAY, TICKER_DELAY, MAX_DAYSOUT, MIN_DAYSOUT):
+def GetOptionsfromyfinance(root_data, TICKERS, EXPIRY_DELAY, TICKER_DELAY, MAX_DAYSOUT, MIN_DAYSOUT):
     bad_tickers = []
     all_options = pd.DataFrame()
     
@@ -326,8 +327,29 @@ def Bullets_BTC(all_options, trade_log_open):
     CBTC_trades['max_close_bid'] = MIN_BID_Pct * CBTC_trades['fee']
     CBTC_trades['est_close_ARR'] = MIN_ARR_Pct * est_close_ARR
 
+
+# **********
+# Obsolete functions
+# **********
+
+def GetPrices(TICKERS, root_data, DAR_key):
+    for ticker in TICKERS:
+        print('getting price for ', ticker)    
+        price_rqst = 'https://api.darqube.com/data-api/market_data/quote/' + ticker + '?token=' + DAR_key
+
+        # TODO - Use try condition to get ech stock price. If DARqube returns error, then trap out and continue instead of crashing
+        response = requests.get(price_rqst)
+        price_dict = response.json()
+        #print('     price_dict = ', price_dict)
+        root_data.loc[ticker, 'root price'] = price_dict['price']
+
+    root_data.sort_index(inplace = True) #Save root_data with updated current market prices.
+
+    return root_data
+
+
 # Main program to verify that this runs:
-print('OptionGunLib01 runs like a top.')
+print('OptionGunLib03 runs like a top.')
     
 
 
