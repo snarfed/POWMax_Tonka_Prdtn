@@ -1,5 +1,5 @@
-,Ticker,root price
-0,AIG,59.24
-1,XOM,113.52
-2,ZIM,12.24
-3,ZION,36.44
+ticker,root price,ER Date
+AIG,58.775,23-11-11
+XOM,114.145,23-11-11
+ZIM,11.755,23-11-11
+ZION,36.43,23-11-11

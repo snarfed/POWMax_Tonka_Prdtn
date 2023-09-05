@@ -40,9 +40,8 @@ from   dateutil.relativedelta  import relativedelta
 
 #import ImportLibsPython01
 #import ImportLibsPowerMax01
-
 def GetPricesfromyquery(TICKERS, root_data): # 09/03/23 - yahooquery is faster, easier than yfinance.
-    print('in OptionGunLib03, TICKERS = ')
+    print('in OptionGunLib03 in PowerMax_code...')
     all_symbols = " ".join(TICKERS)
     yquery_Info = yq.Ticker(all_symbols)
     yquery_Dict = yquery_Info.price
@@ -51,9 +50,11 @@ def GetPricesfromyquery(TICKERS, root_data): # 09/03/23 - yahooquery is faster, 
     for ticker in TICKERS:
         prices.append(yquery_Dict[ticker]['regularMarketPrice'])
                       
-    df_data = {'Ticker': TICKERS, 'root price': prices}
-    root_data = pd.DataFrame(df_data)   #This replaces the existing root_data. Does not update it.
-
+    df_data = {'ticker': TICKERS, 'root price': prices}
+    root_data = pd.DataFrame(df_data)
+    root_data.set_index('ticker', inplace = True)
+    root_data['ER Date'] = '23-11-11'  #Set a bogus date. Fix when you find a source for ER dates.
+     
     return root_data
 
 def GetOptionsfromyfinance(root_data, TICKERS, EXPIRY_DELAY, TICKER_DELAY, MAX_DAYSOUT, MIN_DAYSOUT):
