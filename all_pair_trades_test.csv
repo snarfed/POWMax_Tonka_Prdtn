@@ -1,0 +1,16 @@
+,first day num,option ticker,root,expiry day,strike,option type,close action,first option day seq,day num,option day seq
+0,10,AMZN$30put15,AMZN,15,30,put,,0,11,1
+1,10,AMZN$30put15,AMZN,15,30,put,,0,12,2
+2,10,AMZN$30put15,AMZN,15,30,put,,0,13,3
+3,10,AMZN$30put15,AMZN,15,30,put,,0,14,4
+4,10,AMZN$30put15,AMZN,15,30,put,,0,15,5
+5,11,AMZN$30put15,AMZN,15,30,put,,1,12,2
+6,11,AMZN$30put15,AMZN,15,30,put,,1,13,3
+7,11,AMZN$30put15,AMZN,15,30,put,,1,14,4
+8,11,AMZN$30put15,AMZN,15,30,put,,1,15,5
+9,12,AMZN$30put15,AMZN,15,30,put,,2,13,3
+10,12,AMZN$30put15,AMZN,15,30,put,,2,14,4
+11,12,AMZN$30put15,AMZN,15,30,put,,2,15,5
+12,13,AMZN$30put15,AMZN,15,30,put,,3,14,4
+13,13,AMZN$30put15,AMZN,15,30,put,,3,15,5
+14,14,AMZN$30put15,AMZN,15,30,put,,4,15,5
