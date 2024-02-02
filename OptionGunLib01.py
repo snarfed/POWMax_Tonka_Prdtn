@@ -46,8 +46,15 @@ def GetPrices(TICKERS, root_data, DAR_key):
 
         # TODO - Use try condition to get ech stock price. If DARqube returns error, then trap out and continue instead of crashing
         response = requests.get(price_rqst)
+        if not response.ok:
+            print('  ...failed with ', response, ', skipping')
+            continue
+
         price_dict = response.json()
-        #print('     price_dict = ', price_dict)
+        if 'price' not in price_dict:
+            print('  ...skipping, missing price field:  ', price_dict)
+            continue
+
         root_data.loc[ticker, 'root price'] = price_dict['price']
 
     root_data.sort_index(inplace = True) #Save root_data with updated current market prices.
