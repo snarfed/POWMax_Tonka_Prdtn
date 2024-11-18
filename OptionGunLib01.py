@@ -41,6 +41,21 @@ from   dateutil.relativedelta  import relativedelta
 
 logging.basicConfig()
 
+# handle Yahoo's rate limiting with a cache
+# from https://ranaroussi.github.io/yfinance/advanced/caching.html#smarter-scraping
+from requests import Session
+from requests_cache import CacheMixin, SQLiteCache
+from requests_ratelimiter import LimiterMixin, MemoryQueueBucket
+from pyrate_limiter import Duration, RequestRate, Limiter
+class CachedLimiterSession(CacheMixin, LimiterMixin, Session):
+   pass
+
+session = CachedLimiterSession(
+   limiter=Limiter(RequestRate(2, Duration.SECOND*5)),  # max 2 requests per 5 seconds
+   bucket_class=MemoryQueueBucket,
+   backend=SQLiteCache("yfinance.cache"),
+)
+
 
 def GetPrices(TICKERS, root_data, DAR_key):
     for ticker in TICKERS:
@@ -73,7 +88,7 @@ def GetOptions(root_data, TICKERS, EXPIRY_DELAY, TICKER_DELAY, MAX_DAYSOUT, MIN_
         print('getting data for ', ticker, ' at time ', datetime.now())
         try:                                      # get option strings from yfinance for each ticker.
                                                   # if call to yfinance fails, then just skip this expiry date.
-            ticker_data = yf.Ticker(ticker)       # get option strings from yfinance for each ticker.
+            ticker_data = yf.Ticker(ticker, session=session)       # get option strings from yfinance for each ticker.
             expiry_dates = ticker_data.options
         except:
             print('yfinance call failed for ', ticker)
