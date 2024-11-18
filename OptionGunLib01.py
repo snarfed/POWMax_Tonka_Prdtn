@@ -16,6 +16,7 @@ import csv
 import copy
 import json
 import numpy as np
+import logging
 import os
 import pandas as pd
 import requests   # for http requests
@@ -37,6 +38,8 @@ from   dateutil.relativedelta  import relativedelta
 
 #import ImportLibsPython01
 #import ImportLibsPowerMax01
+
+logging.basicConfig()
 
 
 def GetPrices(TICKERS, root_data, DAR_key):
@@ -71,11 +74,12 @@ def GetOptions(root_data, TICKERS, EXPIRY_DELAY, TICKER_DELAY, MAX_DAYSOUT, MIN_
         try:                                      # get option strings from yfinance for each ticker.
                                                   # if call to yfinance fails, then just skip this expiry date.
             ticker_data = yf.Ticker(ticker)       # get option strings from yfinance for each ticker.
+            expiry_dates = ticker_data.options
         except:
-            print('yfinance call failed for ', ticker) 
+            print('yfinance call failed for ', ticker)
+            continue
         quote_time = datetime.now() + timedelta(hours = 3)
         quote_date = date.today()
-        expiry_dates = ticker_data.options
         call_ticker_options = pd.DataFrame()
         put_ticker_options  = pd.DataFrame()
         for exp_date in expiry_dates:
