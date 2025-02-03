@@ -56,11 +56,13 @@ session = CachedLimiterSession(
    backend=SQLiteCache("yfinance.cache"),
 )
 
+POLYGON_KEY = 'VXdrLN6DlcCHz8vRnpESERXk3ogcJ_eR'
 
-def GetPrices(TICKERS, root_data, DAR_key):
+
+def GetPrices(TICKERS, root_data, polygon_key):
     for ticker in TICKERS:
-        print('getting price for ', ticker)    
-        price_rqst = 'https://api.darqube.com/data-api/market_data/quote/' + ticker + '?token=' + DAR_key
+        print('getting price for ', ticker)
+        price_rqst = f'https://api.polygon.io/v2/last/trade/{ticker}?apiKey={polygon_key}'
 
         # TODO - Use try condition to get ech stock price. If DARqube returns error, then trap out and continue instead of crashing
         response = requests.get(price_rqst)
@@ -68,12 +70,12 @@ def GetPrices(TICKERS, root_data, DAR_key):
             print('  ...failed with ', response, ', skipping')
             continue
 
-        price_dict = response.json()
-        if 'price' not in price_dict:
+        price_dict = response.json()['results']
+        if 'p' not in price_dict:
             print('  ...skipping, missing price field:  ', price_dict)
             continue
 
-        root_data.loc[ticker, 'root price'] = price_dict['price']
+        root_data.loc[ticker, 'root price'] = price_dict['p']
 
     root_data.sort_index(inplace = True) #Save root_data with updated current market prices.
 
